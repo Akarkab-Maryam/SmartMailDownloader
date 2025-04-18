@@ -7,7 +7,7 @@ import re
 # Identifiants
 username = "ca.sfr@maneoreseaux.com"
 password = "ijnn asfl pkrm wbdj "
-code_racine = "U512656"
+code_racine = "UXXXXXX"
 download_base = "C:/Users/maryam/Downloads/teste"
 
 # scanner les label
