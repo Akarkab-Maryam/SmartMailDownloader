@@ -2,36 +2,36 @@ import imaplib
 import email
 from email.header import decode_header
 import os
+import re
 
-# Identifiants et configuration
+# Identifiants
 username = "maryama@maneoreseaux.com"
 password = "gyww mccm gwml buod"
-sujet_recherche = "U512373"
-D = r"C:\Users\maryam\Downloads\teste"  # Dossier de téléchargement
+code_racine = "U502574"  #folder sherache"
+download_base = "C:/Users/maryam/Downloads/teste"
 
-# Connexion au serveur IMAP de Gmail
-print("Connexion...")
+# Connexion
 mail = imaplib.IMAP4_SSL("imap.gmail.com")
 mail.login(username, password)
-print("Connexion à l'email", username, "réussie")
+print("✅ Connexion réussie")
 
-# Sélectionner le label (boîte de réception personnalisée)
+# select label
 mail.select('"Retours terrain"', readonly=True)
-print('Label "Retours terrain" sélectionné')
+print("📂 Label 'Retours terrain' sélectionné")
 
-# Rechercher les emails contenant le sujet "U512373"
-status, messages = mail.search(None, f'(SUBJECT "{sujet_recherche}")')
+# Recherche de tous les mails contenant le code racine
+status, messages = mail.search(None, f'(SUBJECT "{code_racine}")')
 
 if status != "OK":
-    print("Erreur lors de la recherche.")
+    print("❌ Erreur lors de la recherche.")
 else:
     email_ids = messages[0].split()
-    print(f"{len(email_ids)} email(s) trouvé(s) contenant '{sujet_recherche}'")
+    print(f"🔍 {len(email_ids)} mail(s) contenant '{code_racine}' trouvé(s)")
 
     for num in email_ids:
         res, msg_data = mail.fetch(num, "(RFC822)")
         if res != "OK":
-            print("Erreur lors du téléchargement du message")
+            print("⚠️ Erreur de récupération du mail.")
             continue
 
         msg = email.message_from_bytes(msg_data[0][1])
@@ -39,8 +39,20 @@ else:
         if isinstance(subject, bytes):
             subject = subject.decode()
 
-        print(f"Traitement de l'email : {subject}")
+        # Extraction du uo (ex: U123456-1)
+        match = re.search(rf'({code_racine}-\d+)', subject)
+        if not match:
+            print(f"❌ Aucun code complet trouvé dans : {subject}")
+            continue
 
+        code_complet = match.group(1)
+        print(f"📁 Création dossier : {code_complet}")
+
+        # Création du dossier
+        dossier_courant = os.path.join(download_base, code_complet)
+        os.makedirs(dossier_courant, exist_ok=True)
+
+        # Récupération des pièces jointes
         for part in msg.walk():
             if part.get_content_maintype() == "multipart":
                 continue
@@ -53,14 +65,14 @@ else:
                 if isinstance(filename, bytes):
                     filename = filename.decode()
 
-                filepath = os.path.join(D, filename)
+                filepath = os.path.join(dossier_courant, filename)
 
                 if not os.path.exists(filepath):
                     with open(filepath, "wb") as f:
                         f.write(part.get_payload(decode=True))
-                    print(f"Téléchargé : {filename}")
+                    print(f"📎 Pièce jointe téléchargée : {filepath}")
                 else:
-                    print(f"Déjà existant : {filename}")
+                    print(f"✅ Déjà existante : {filepath}")
 
-# Déconnexion propre
 mail.logout()
+print("✅ Téléchargement terminé.")
