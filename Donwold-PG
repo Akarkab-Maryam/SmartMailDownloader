@@ -1,0 +1,66 @@
+import imaplib
+import email
+from email.header import decode_header
+import os
+
+# Identifiants et configuration
+username = "maryama@maneoreseaux.com"
+password = "gyww mccm gwml buod"
+sujet_recherche = "U512373"
+D = r"C:\Users\maryam\Downloads\teste"  # Dossier de téléchargement
+
+# Connexion au serveur IMAP de Gmail
+print("Connexion...")
+mail = imaplib.IMAP4_SSL("imap.gmail.com")
+mail.login(username, password)
+print("Connexion à l'email", username, "réussie")
+
+# Sélectionner le label (boîte de réception personnalisée)
+mail.select('"Retours terrain"', readonly=True)
+print('Label "Retours terrain" sélectionné')
+
+# Rechercher les emails contenant le sujet "U512373"
+status, messages = mail.search(None, f'(SUBJECT "{sujet_recherche}")')
+
+if status != "OK":
+    print("Erreur lors de la recherche.")
+else:
+    email_ids = messages[0].split()
+    print(f"{len(email_ids)} email(s) trouvé(s) contenant '{sujet_recherche}'")
+
+    for num in email_ids:
+        res, msg_data = mail.fetch(num, "(RFC822)")
+        if res != "OK":
+            print("Erreur lors du téléchargement du message")
+            continue
+
+        msg = email.message_from_bytes(msg_data[0][1])
+        subject = decode_header(msg["Subject"])[0][0]
+        if isinstance(subject, bytes):
+            subject = subject.decode()
+
+        print(f"Traitement de l'email : {subject}")
+
+        for part in msg.walk():
+            if part.get_content_maintype() == "multipart":
+                continue
+            if part.get("Content-Disposition") is None:
+                continue
+
+            filename = part.get_filename()
+            if filename:
+                filename = decode_header(filename)[0][0]
+                if isinstance(filename, bytes):
+                    filename = filename.decode()
+
+                filepath = os.path.join(D, filename)
+
+                if not os.path.exists(filepath):
+                    with open(filepath, "wb") as f:
+                        f.write(part.get_payload(decode=True))
+                    print(f"Téléchargé : {filename}")
+                else:
+                    print(f"Déjà existant : {filename}")
+
+# Déconnexion propre
+mail.logout()
