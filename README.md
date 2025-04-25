@@ -1,5 +1,11 @@
 📄 Description du script – Téléchargement automatique des pièces jointes Gmail
-Ce script Python permet de se connecter à une boîte mail Gmail via IMAP, de rechercher des mails contenant un code spécifique dans l’objet, et de télécharger automatiquement les pièces jointes associées dans des dossiers nommés selon ce code.
+
+
+
+Ce script Python permet de se connecter à une boîte mail Gmail via IMAP, de rechercher des mails contenant un code spécifique dans l’objet,
+
+
+et de télécharger automatiquement les pièces jointes associées dans des dossiers nommés selon ce code.
 
 🔧 Fonctionnalités principales :
 Connexion sécurisée à Gmail avec imaplib via IMAP SSL.
