@@ -8,6 +8,8 @@ Ce script Python permet de se connecter à une boîte mail Gmail via IMAP, de re
 et de télécharger automatiquement les pièces jointes associées dans des dossiers nommés selon ce code.
 
 🔧 Fonctionnalités principales :
+
+
 Connexion sécurisée à Gmail avec imaplib via IMAP SSL.
 
 Scan de plusieurs labels (dossiers) dans la boîte mail, définis dans la liste labels_to_check.
